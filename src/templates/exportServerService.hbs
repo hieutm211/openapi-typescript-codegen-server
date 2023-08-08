@@ -1,0 +1,41 @@
+{{>header}}
+
+import { Express, Router, Request, Response } from "express";
+import { server } from "../../../controller";
+
+{{#if imports}}
+{{#each imports}}
+import type { {{{this}}} } from '../models/{{{this}}}';
+{{/each}}
+{{/if}}
+
+
+export type DefaultService = {
+	{{#each operations}}
+	/**
+	{{#if deprecated}}
+	 * @deprecated
+	{{/if}}
+	{{#if summary}}
+	 * {{{escapeComment summary}}}
+	{{/if}}
+	{{#if description}}
+	 * {{{escapeComment description}}}
+	{{/if}}
+	 */
+	{{name}}: (
+		req: Request{{{toServerParameters parameters}}},
+		res: Response<{{>result}}>
+	) => void;
+	{{/each}}
+};
+
+
+export const registerHandlers = (app: Express) => {
+	const router = Router();
+	{{#each operations}}
+	router.{{{lowerCase method}}}("{{path}}", server.{{name}});
+	{{/each}}
+
+	app.use("/v1", router)
+};

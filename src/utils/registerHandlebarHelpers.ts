@@ -4,6 +4,7 @@ import { EOL } from 'os';
 
 import type { Enum } from '../client/interfaces/Enum';
 import type { Model } from '../client/interfaces/Model';
+import { OperationParameter } from '../client/interfaces/OperationParameter';
 import type { HttpClient } from '../HttpClient';
 import { unique } from './unique';
 
@@ -103,5 +104,33 @@ export const registerHandlebarHelpers = (root: {
 
     Handlebars.registerHelper('camelCase', function (value: string): string {
         return camelCase(value);
+    });
+
+    Handlebars.registerHelper('lowerCase', function (value: string): string {
+        return value.toLowerCase();
+    });
+
+    Handlebars.registerHelper('toServerParameters', function (parameters: OperationParameter[]): string {
+        const requestBody = parameters.find(item => item.in === 'body');
+        const queryParams = parameters.filter(item => item.in === 'query');
+
+        let body = '';
+        if (requestBody) {
+            if (requestBody.isRequired) body = `,\n\t${requestBody.type}`;
+            else body += `,\n\t${requestBody.type} | undefined`;
+        } else {
+            body = ',\n\tundefined';
+        }
+
+        let query = '';
+        if (queryParams.length > 0) {
+            query = `,\n\t{${queryParams.map(
+                query => `\n\t\t${query.name}${!query.isRequired ? '?' : ''}: ${query.type}`
+            )}\n\t}`;
+        } else {
+            query = ',\n\tundefined';
+        }
+
+        return `<\n\tany,\n\tany${body}${query}\n>`;
     });
 };

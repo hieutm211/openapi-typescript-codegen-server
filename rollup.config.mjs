@@ -39,6 +39,8 @@ const handlebarsPlugin = () => ({
                     escapeComment: true,
                     escapeDescription: true,
                     camelCase: true,
+                    lowerCase: true,
+                    toServerParameters: true,
                 },
             });
             return `export default ${templateSpec};`;
