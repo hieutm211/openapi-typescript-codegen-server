@@ -32,10 +32,7 @@ export type DefaultService = {
 
 
 export const registerHandlers = (app: Express) => {
-	const router = Router();
 	{{#each operations}}
-	router.{{{lowerCase method}}}("{{path}}", server.{{name}});
+	app.{{{lowerCase method}}}("{{path}}", server.{{name}});
 	{{/each}}
-
-	app.use("/v1", router)
 };
